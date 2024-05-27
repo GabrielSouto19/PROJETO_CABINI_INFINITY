@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css"> 
+    <title>Cabine de Foto</title>
+    
+</head>
+<body>
+    <h1>Cabine de Foto</h1>
+    <video id="video" width="320" height="240" autoplay></video>
+    <button id="snap">Tirar Foto</button>
+    <div id="photos"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+
+    <script>
+        (async function() {
+            const video = document.getElementById('video');
+            const canvas = document.createElement('canvas');
+            const snapButton = document.getElementById('snap');
+            const photosContainer = document.getElementById('photos');
+
+            // Solicitar acesso à câmera
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("Erro ao acessar a câmera: ", err);
+            }
+
+            // Função para tirar foto
+            snapButton.addEventListener('click', () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const dataUrl = canvas.toDataURL('image/png');
+                addPhotoToPage(dataUrl);
+                savePhoto(dataUrl);
+            });
+
+            // Função para adicionar a foto à página
+            function addPhotoToPage(dataUrl) {
+                const img = document.createElement('img');
+                img.src = dataUrl;
+                img.className = 'photo';
+                photosContainer.appendChild(img);
+            }
+
+            // Função para salvar a foto no PC
+            function savePhoto(dataUrl) {
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = 'photo.png';
+                link.click();
+            }
+        })();
+    </script>
+</body>
+</html>
